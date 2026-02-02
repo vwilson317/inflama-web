@@ -18,7 +18,7 @@ export function OutOfLikesModal({ visible, onClose }: OutOfLikesModalProps) {
   return (
     <TouchableWithoutFeedback onPress={onClose}>
       <View style={styles.overlay}>
-        <View style={styles.content} pointerEvents="box-none">
+        <View style={styles.content}>
           <View style={styles.iconWrap}>
             <Text style={styles.emoji}>😢</Text>
           </View>
@@ -31,6 +31,10 @@ export function OutOfLikesModal({ visible, onClose }: OutOfLikesModalProps) {
   );
 }
 
+// Pixel-based centering so layout isn't delayed by confetti reflows (RN doesn't support % in transform)
+const CONTENT_WIDTH = 320;
+const CONTENT_HEIGHT = 280;
+
 const styles = StyleSheet.create({
   overlay: {
     position: 'fixed',
@@ -38,15 +42,22 @@ const styles = StyleSheet.create({
     top: 0,
     right: 0,
     bottom: 0,
-    flex: 1,
+    width: '100%',
+    height: '100%',
+    minHeight: '100vh',
     backgroundColor: 'rgba(0,0,0,0.85)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 9999,
+    zIndex: 10000,
   },
   content: {
+    position: 'absolute',
+    left: '50%',
+    top: '50%',
+    width: CONTENT_WIDTH,
+    marginLeft: -CONTENT_WIDTH / 2,
+    marginTop: -CONTENT_HEIGHT / 2,
     alignItems: 'center',
     paddingHorizontal: 32,
+    zIndex: 1,
   },
   iconWrap: {
     marginBottom: 24,

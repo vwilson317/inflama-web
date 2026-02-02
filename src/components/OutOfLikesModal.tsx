@@ -28,7 +28,7 @@ export function OutOfLikesModal({ visible, onClose }: OutOfLikesModalProps) {
     >
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.overlay}>
-          <View style={styles.content} pointerEvents="box-none">
+          <View style={styles.content}>
             <View style={styles.iconWrap}>
               <Text style={styles.emoji}>😢</Text>
             </View>
@@ -45,9 +45,8 @@ export function OutOfLikesModal({ visible, onClose }: OutOfLikesModalProps) {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    position: 'relative',
     width: SCREEN_WIDTH,
-    minHeight: SCREEN_HEIGHT,
+    height: SCREEN_HEIGHT,
     backgroundColor: 'rgba(0,0,0,0.85)',
     justifyContent: 'center',
     alignItems: 'center',
