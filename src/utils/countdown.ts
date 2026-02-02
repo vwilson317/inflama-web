@@ -23,3 +23,9 @@ export function getCountdownText(until: Date): string {
   }
   return 'Leaving in < 1m';
 }
+
+/** True if the profile is leaving in less than 24 hours (and still in the future). */
+export function isLeavingInLessThan24Hours(until: Date): boolean {
+  const diffMs = until.getTime() - Date.now();
+  return diffMs > 0 && diffMs < 24 * 60 * 60 * 1000;
+}

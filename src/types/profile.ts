@@ -8,6 +8,8 @@ interface ProfileBase {
   countryCode: string;
   currentLocation: string;
   gender: Gender;
+  /** Instagram username (no @). Opens instagram.com on web, app on mobile when available. */
+  instagram?: string;
 }
 
 /** Exactly one: leaving (has leavingAt) or living (livingInLocation: true). */

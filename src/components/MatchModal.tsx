@@ -7,7 +7,11 @@ import {
   Animated,
   Dimensions,
   TouchableWithoutFeedback,
+  TouchableOpacity,
+  Linking,
 } from 'react-native';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faInstagram } from '@fortawesome/free-brands-svg-icons';
 import { theme } from '../theme';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -29,6 +33,8 @@ interface MatchModalProps {
   visible: boolean;
   onClose: () => void;
   matchedName?: string;
+  /** Instagram username (no @). Opens instagram.com on web, app on mobile when available. */
+  matchedInstagram?: string;
 }
 
 function useConfetti(active: boolean) {
@@ -77,10 +83,19 @@ function useConfetti(active: boolean) {
   return particles;
 }
 
+function openInstagram(username: string) {
+  const clean = username.replace(/^@/, '').trim();
+  if (!clean) return;
+  // instagram.com opens in browser on web; on mobile often opens app if installed
+  const url = `https://instagram.com/${encodeURIComponent(clean)}`;
+  Linking.openURL(url);
+}
+
 export function MatchModal({
   visible,
   onClose,
   matchedName,
+  matchedInstagram,
 }: MatchModalProps) {
   const kissOpacity = useRef(new Animated.Value(0)).current;
   const kissScale = useRef(new Animated.Value(0.8)).current;
@@ -191,6 +206,16 @@ export function MatchModal({
             >
               <Text style={styles.kiss}>💋</Text>
             </Animated.View>
+            {matchedInstagram ? (
+              <TouchableOpacity
+                style={styles.instagramButton}
+                onPress={() => openInstagram(matchedInstagram)}
+                activeOpacity={0.8}
+              >
+                <FontAwesomeIcon icon={faInstagram} size={22} color="#fff" />
+                <Text style={styles.instagramText}>@{matchedInstagram.replace(/^@/, '')}</Text>
+              </TouchableOpacity>
+            ) : null}
             <Text style={styles.tapHint}>Tap anywhere to continue</Text>
           </View>
         </View>
@@ -250,6 +275,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255,255,255,0.8)',
     marginTop: 16,
+  },
+  instagramButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    marginTop: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: 'rgba(225,48,108,0.9)',
+    borderRadius: 24,
+  },
+  instagramText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
   },
   confetti: {
     position: 'absolute',

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -8,6 +8,9 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import type { IconProp } from '@fortawesome/fontawesome-svg-core';
+import { faXmark, faStar, faHeart } from '@fortawesome/free-solid-svg-icons';
 import { Profile } from '../types/profile';
 import { ProfileCard } from './ProfileCard';
 import { theme } from '../theme';
@@ -18,14 +21,41 @@ const SWIPE_OUT_DURATION = 200;
 
 interface SwipeStackProps {
   profiles: Profile[];
+  likesRemaining?: number;
   onSwipeLeft?: (profile: Profile) => void;
   onSwipeRight?: (profile: Profile) => void;
+  onOutOfLikes?: () => void;
+}
+
+function springBack(translateX: Animated.Value, translateY: Animated.Value, rotate: Animated.Value) {
+  Animated.parallel([
+    Animated.spring(translateX, {
+      toValue: 0,
+      useNativeDriver: true,
+      friction: 8,
+      tension: 80,
+    }),
+    Animated.spring(translateY, {
+      toValue: 0,
+      useNativeDriver: true,
+      friction: 8,
+      tension: 80,
+    }),
+    Animated.spring(rotate, {
+      toValue: 0,
+      useNativeDriver: true,
+      friction: 8,
+      tension: 80,
+    }),
+  ]).start();
 }
 
 export function SwipeStack({
   profiles,
+  likesRemaining = Infinity,
   onSwipeLeft,
   onSwipeRight,
+  onOutOfLikes,
 }: SwipeStackProps) {
   const [index, setIndex] = useState(0);
   const translateX = useRef(new Animated.Value(0)).current;
@@ -33,6 +63,19 @@ export function SwipeStack({
   const rotate = useRef(new Animated.Value(0)).current;
 
   const currentProfile = profiles[index];
+
+  const currentProfileRef = useRef(currentProfile);
+  const onSwipeLeftRef = useRef(onSwipeLeft);
+  const onSwipeRightRef = useRef(onSwipeRight);
+  const onOutOfLikesRef = useRef(onOutOfLikes);
+  const likesRemainingRef = useRef(likesRemaining);
+  useEffect(() => {
+    currentProfileRef.current = currentProfile;
+    onSwipeLeftRef.current = onSwipeLeft;
+    onSwipeRightRef.current = onSwipeRight;
+    onOutOfLikesRef.current = onOutOfLikes;
+    likesRemainingRef.current = likesRemaining;
+  }, [currentProfile, onSwipeLeft, onSwipeRight, onOutOfLikes, likesRemaining]);
 
   const panResponder = useRef(
     PanResponder.create({
@@ -49,6 +92,12 @@ export function SwipeStack({
         const shouldSwipeRight = dx > SWIPE_THRESHOLD || vx > 0.5;
 
         if (shouldSwipeLeft || shouldSwipeRight) {
+          const outOfLikes = shouldSwipeRight && likesRemainingRef.current <= 0;
+          if (outOfLikes) {
+            onOutOfLikesRef.current?.();
+            springBack(translateX, translateY, rotate);
+            return;
+          }
           const toValue = shouldSwipeLeft ? -SCREEN_WIDTH * 1.2 : SCREEN_WIDTH * 1.2;
           Animated.parallel([
             Animated.timing(translateX, {
@@ -62,9 +111,10 @@ export function SwipeStack({
               useNativeDriver: true,
             }),
           ]).start(() => {
-            if (currentProfile) {
-              if (shouldSwipeLeft) onSwipeLeft?.(currentProfile);
-              else onSwipeRight?.(currentProfile);
+            const profile = currentProfileRef.current;
+            if (profile) {
+              if (shouldSwipeLeft) onSwipeLeftRef.current?.(profile);
+              else onSwipeRightRef.current?.(profile);
             }
             translateX.setValue(0);
             translateY.setValue(0);
@@ -135,6 +185,11 @@ export function SwipeStack({
 
   const handleSwipeRight = () => {
     if (!currentProfile) return;
+    if (likesRemaining <= 0) {
+      onOutOfLikes?.();
+      springBack(translateX, translateY, rotate);
+      return;
+    }
     Animated.timing(translateX, {
       toValue: SCREEN_WIDTH * 1.2,
       duration: SWIPE_OUT_DURATION,
@@ -201,21 +256,13 @@ export function SwipeStack({
       {/* Action buttons */}
       <View style={styles.actionRow}>
         <TouchableOpacity style={[styles.actionButton, styles.passButton]} onPress={handleSwipeLeft}>
-          <View style={styles.xIcon}>
-            <View style={[styles.xLine, styles.xLine1]} />
-            <View style={[styles.xLine, styles.xLine2]} />
-          </View>
+          <FontAwesomeIcon icon={faXmark as IconProp} size={34} color={theme.blue} />
         </TouchableOpacity>
         <TouchableOpacity style={[styles.actionButton, styles.superButton]} onPress={handleSuperLike}>
-          <View style={styles.starIcon}>
-            <Text style={styles.starText}>★</Text>
-          </View>
+          <FontAwesomeIcon icon={faStar as IconProp} size={34} color={theme.gold} />
         </TouchableOpacity>
         <TouchableOpacity style={[styles.actionButton, styles.kissButton]} onPress={handleSwipeRight}>
-          <View style={styles.lipsIcon}>
-            <View style={styles.lipTop} />
-            <View style={styles.lipBottom} />
-          </View>
+          <FontAwesomeIcon icon={faHeart as IconProp} size={34} color={theme.green} />
         </TouchableOpacity>
       </View>
     </View>
@@ -276,13 +323,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 24,
-    paddingVertical: 20,
+    gap: 40,
+    paddingVertical: 28,
   },
   actionButton: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -305,52 +352,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#1a1a2e',
     borderWidth: 3,
     borderColor: theme.green,
-  },
-  xIcon: {
-    width: 28,
-    height: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  xLine: {
-    position: 'absolute',
-    width: 28,
-    height: 4,
-    backgroundColor: theme.blue,
-    borderRadius: 2,
-  },
-  xLine1: {
-    transform: [{ rotate: '45deg' }],
-  },
-  xLine2: {
-    transform: [{ rotate: '-45deg' }],
-  },
-  starIcon: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  starText: {
-    fontSize: 32,
-    color: theme.gold,
-    lineHeight: 36,
-  },
-  lipsIcon: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  lipTop: {
-    width: 24,
-    height: 12,
-    backgroundColor: theme.green,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-    marginBottom: -2,
-  },
-  lipBottom: {
-    width: 20,
-    height: 10,
-    backgroundColor: theme.green,
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
   },
 });

@@ -24,6 +24,7 @@ export const MOCK_MEN: Profile[] = [
     currentLocation: 'Rio de Janeiro',
     livingInLocation: true,
     gender: 'male',
+    instagram: 'rafael.rj',
   },
   {
     id: 'm2',
@@ -34,6 +35,7 @@ export const MOCK_MEN: Profile[] = [
     currentLocation: 'Salvador',
     leavingAt: addHours(now, 18),
     gender: 'male',
+    instagram: 'bruno.salvador',
   },
   {
     id: 'm3',
@@ -44,6 +46,7 @@ export const MOCK_MEN: Profile[] = [
     currentLocation: 'São Paulo',
     leavingAt: addDays(now, 2),
     gender: 'male',
+    instagram: 'lucas.sp',
   },
   {
     id: 'm4',
@@ -54,6 +57,7 @@ export const MOCK_MEN: Profile[] = [
     currentLocation: 'Rio de Janeiro',
     leavingAt: addDays(now, 1),
     gender: 'male',
+    instagram: 'diego.rj',
   },
   {
     id: 'm5',
@@ -64,6 +68,7 @@ export const MOCK_MEN: Profile[] = [
     currentLocation: 'Florianópolis',
     leavingAt: addHours(now, 48),
     gender: 'male',
+    instagram: 'thiago.floripa',
   },
 ];
 
@@ -77,6 +82,7 @@ export const MOCK_WOMEN: Profile[] = [
     currentLocation: 'Rio de Janeiro',
     livingInLocation: true,
     gender: 'female',
+    instagram: 'bea.rioo',
   },
   {
     id: 'w2',
@@ -87,6 +93,7 @@ export const MOCK_WOMEN: Profile[] = [
     currentLocation: 'Salvador',
     leavingAt: addHours(now, 12),
     gender: 'female',
+    instagram: 'marina.salvador',
   },
   {
     id: 'w3',
@@ -97,6 +104,7 @@ export const MOCK_WOMEN: Profile[] = [
     currentLocation: 'São Paulo',
     leavingAt: addDays(now, 3),
     gender: 'female',
+    instagram: 'camila.sp',
   },
   {
     id: 'w4',
@@ -107,6 +115,7 @@ export const MOCK_WOMEN: Profile[] = [
     currentLocation: 'Rio de Janeiro',
     leavingAt: addDays(now, 7),
     gender: 'female',
+    instagram: 'larissa.rj',
   },
   {
     id: 'w5',
@@ -117,6 +126,7 @@ export const MOCK_WOMEN: Profile[] = [
     currentLocation: 'Florianópolis',
     leavingAt: addHours(now, 36),
     gender: 'female',
+    instagram: 'fernanda.floripa',
   },
 ];
 
