@@ -1,22 +1,40 @@
-// Brazilian carnival theme: gold, green, deep purple, sequin sparkle
+// Brazilian flag–inspired theme (matches app icon): green, yellow, sapphire blue, glossy depth
 export const theme = {
-  bgDark: '#1a0a2e',
-  bgGradient: ['#1a0a2e', '#2d1b4e', '#1a0a2e'],
-  gold: '#f4c430',
-  goldLight: '#ffdd57',
+  // Background: white
+  bgDark: '#ffffff',
+  bgGradient: ['#ffffff', '#f5f5f5', '#ffffff'],
+
+  // Greens (outer layer): forest → flag green → lime highlight
   green: '#009739',
+  greenDark: '#1b5e20',
+  greenLight: '#7cb342',
+
+  // Yellow (rhombus): golden → luminous
+  gold: '#ffdd00',
+  goldDark: '#f9a825',
+  goldLight: '#ffeb3b',
+
+  // Blue (heart/sphere): sapphire
   blue: '#002776',
-  pink: '#e91e8c',
-  purple: '#6a1b9a',
-  textPrimary: '#ffffff',
-  textSecondary: 'rgba(255,255,255,0.85)',
-  cardBg: '#2d1b4e',
+  blueLight: '#1565c0',
+
+  // Neutrals
+  white: '#ffffff',
+  textPrimary: '#1a1a1a',
+  textSecondary: 'rgba(26,26,26,0.85)',
+
+  // Cards: deep blue with subtle green tint (glossy sphere feel)
+  cardBg: '#002776',
+  cardBgOverlay: 'rgba(0,39,118,0.92)',
+
+  // Shadow: soft depth, slight green tint like icon
   shadow: {
-    shadowColor: '#f4c430',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowColor: '#1b5e20',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
+    elevation: 10,
   },
+
   borderRadius: 24,
 };

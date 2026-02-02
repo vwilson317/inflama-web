@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 26,
     fontWeight: '800',
-    color: theme.textPrimary,
+    color: '#ffffff',
   },
   flag: {
     fontSize: 28,
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   },
   location: {
     fontSize: 16,
-    color: theme.textSecondary,
+    color: 'rgba(255,255,255,0.9)',
   },
   countdownWrap: {
     marginTop: 8,
@@ -110,6 +110,6 @@ const styles = StyleSheet.create({
   countdown: {
     fontSize: 13,
     fontWeight: '700',
-    color: theme.bgDark,
+    color: theme.textPrimary,
   },
 });

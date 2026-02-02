@@ -1,6 +1,6 @@
 {
-  "short_name": "Carnival",
-  "name": "Carnival — Swipe under the sequins",
+  "short_name": "Inflama",
+  "name": "Inflama — Swipe under the sequins",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +20,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#1a0a2e",
-  "background_color": "#1a0a2e"
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff"
 }

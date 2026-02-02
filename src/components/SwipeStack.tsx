@@ -121,7 +121,7 @@ export function SwipeStack({
     return (
       <View style={styles.empty}>
         <Text style={styles.emptyText}>No more profiles</Text>
-        <Text style={styles.emptySub}>Carnival keeps going — check back later!</Text>
+        <Text style={styles.emptySub}>Flame went out — check back later!</Text>
       </View>
     );
   }
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
   },
   emptySub: {
     fontSize: 16,
-    color: theme.textSecondary,
+    color: 'rgba(255,255,255,0.85)',
   },
   hintRow: {
     position: 'absolute',
@@ -234,10 +234,12 @@ const styles = StyleSheet.create({
     borderWidth: 3,
   },
   nope: {
-    borderColor: theme.pink,
+    borderColor: theme.blue,
+    backgroundColor: 'rgba(0,39,118,0.15)',
   },
   like: {
     borderColor: theme.green,
+    backgroundColor: 'rgba(0,151,57,0.15)',
   },
   hintText: {
     fontSize: 18,
