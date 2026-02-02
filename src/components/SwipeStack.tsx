@@ -6,6 +6,7 @@ import {
   PanResponder,
   Dimensions,
   Text,
+  TouchableOpacity,
 } from 'react-native';
 import { Profile } from '../types/profile';
 import { ProfileCard } from './ProfileCard';
@@ -117,6 +118,41 @@ export function SwipeStack({
     outputRange: [1, 1, 1],
   });
 
+  const handleSwipeLeft = () => {
+    if (!currentProfile) return;
+    Animated.timing(translateX, {
+      toValue: -SCREEN_WIDTH * 1.2,
+      duration: SWIPE_OUT_DURATION,
+      useNativeDriver: true,
+    }).start(() => {
+      onSwipeLeft?.(currentProfile);
+      translateX.setValue(0);
+      translateY.setValue(0);
+      rotate.setValue(0);
+      setIndex((i) => Math.min(i + 1, profiles.length));
+    });
+  };
+
+  const handleSwipeRight = () => {
+    if (!currentProfile) return;
+    Animated.timing(translateX, {
+      toValue: SCREEN_WIDTH * 1.2,
+      duration: SWIPE_OUT_DURATION,
+      useNativeDriver: true,
+    }).start(() => {
+      onSwipeRight?.(currentProfile);
+      translateX.setValue(0);
+      translateY.setValue(0);
+      rotate.setValue(0);
+      setIndex((i) => Math.min(i + 1, profiles.length));
+    });
+  };
+
+  const handleSuperLike = () => {
+    // Super like - same as right swipe but could have different handling
+    handleSwipeRight();
+  };
+
   if (!currentProfile) {
     return (
       <View style={styles.empty}>
@@ -127,58 +163,77 @@ export function SwipeStack({
   }
 
   return (
-    <View style={styles.container}>
-      {/* Back cards (next in stack) */}
-      {index + 1 < profiles.length && (
+    <View style={styles.wrapper}>
+      {/* Card area */}
+      <View style={styles.container}>
+        {/* Back cards (next in stack) */}
+        {index + 1 < profiles.length && (
+          <Animated.View
+            style={[
+              styles.cardContainer,
+              styles.backCard,
+              {
+                transform: [{ scale: nextCardScale }],
+                opacity: nextCardOpacity,
+              },
+            ]}
+            pointerEvents="none"
+          >
+            <ProfileCard profile={profiles[index + 1]} />
+          </Animated.View>
+        )}
+        {index + 2 < profiles.length && (
+          <View style={[styles.cardContainer, styles.backCard2]} pointerEvents="none">
+            <ProfileCard profile={profiles[index + 2]} />
+          </View>
+        )}
+
+        {/* Top draggable card */}
         <Animated.View
-          style={[
-            styles.cardContainer,
-            styles.backCard,
-            {
-              transform: [{ scale: nextCardScale }],
-              opacity: nextCardOpacity,
-            },
-          ]}
-          pointerEvents="none"
+          style={[styles.cardContainer, styles.topCard, topCardStyle]}
+          {...panResponder.panHandlers}
         >
-          <ProfileCard profile={profiles[index + 1]} />
+          <ProfileCard profile={currentProfile} />
         </Animated.View>
-      )}
-      {index + 2 < profiles.length && (
-        <View style={[styles.cardContainer, styles.backCard2]} pointerEvents="none">
-          <ProfileCard profile={profiles[index + 2]} />
-        </View>
-      )}
 
-      {/* Top draggable card */}
-      <Animated.View
-        style={[styles.cardContainer, styles.topCard, topCardStyle]}
-        {...panResponder.panHandlers}
-      >
-        <ProfileCard profile={currentProfile} />
-      </Animated.View>
+      </View>
 
-      {/* Hint labels */}
-      <View style={styles.hintRow} pointerEvents="none">
-        <View style={[styles.hint, styles.nope]}>
-          <Text style={styles.hintText}>NOPE</Text>
-        </View>
-        <View style={[styles.hint, styles.like]}>
-          <Text style={styles.hintText}>LIKE</Text>
-        </View>
+      {/* Action buttons */}
+      <View style={styles.actionRow}>
+        <TouchableOpacity style={[styles.actionButton, styles.passButton]} onPress={handleSwipeLeft}>
+          <View style={styles.xIcon}>
+            <View style={[styles.xLine, styles.xLine1]} />
+            <View style={[styles.xLine, styles.xLine2]} />
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.actionButton, styles.superButton]} onPress={handleSuperLike}>
+          <View style={styles.starIcon}>
+            <Text style={styles.starText}>★</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.actionButton, styles.kissButton]} onPress={handleSwipeRight}>
+          <View style={styles.lipsIcon}>
+            <View style={styles.lipTop} />
+            <View style={styles.lipBottom} />
+          </View>
+        </TouchableOpacity>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+    width: '100%',
+    maxWidth: 400,
+    alignSelf: 'center',
+  },
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
-    maxWidth: 400,
-    alignSelf: 'center',
   },
   cardContainer: {
     position: 'absolute',
@@ -217,33 +272,85 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'rgba(255,255,255,0.85)',
   },
-  hintRow: {
-    position: 'absolute',
-    bottom: -56,
-    left: 0,
-    right: 0,
+  actionRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 32,
-    zIndex: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 24,
+    paddingVertical: 20,
   },
-  hint: {
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 8,
+  actionButton: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  passButton: {
+    backgroundColor: '#1a1a2e',
     borderWidth: 3,
-  },
-  nope: {
     borderColor: theme.blue,
-    backgroundColor: 'rgba(0,39,118,0.15)',
   },
-  like: {
+  superButton: {
+    backgroundColor: '#1a1a2e',
+    borderWidth: 3,
+    borderColor: theme.gold,
+  },
+  kissButton: {
+    backgroundColor: '#1a1a2e',
+    borderWidth: 3,
     borderColor: theme.green,
-    backgroundColor: 'rgba(0,151,57,0.15)',
   },
-  hintText: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: theme.textPrimary,
+  xIcon: {
+    width: 28,
+    height: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  xLine: {
+    position: 'absolute',
+    width: 28,
+    height: 4,
+    backgroundColor: theme.blue,
+    borderRadius: 2,
+  },
+  xLine1: {
+    transform: [{ rotate: '45deg' }],
+  },
+  xLine2: {
+    transform: [{ rotate: '-45deg' }],
+  },
+  starIcon: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  starText: {
+    fontSize: 32,
+    color: theme.gold,
+    lineHeight: 36,
+  },
+  lipsIcon: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  lipTop: {
+    width: 24,
+    height: 12,
+    backgroundColor: theme.green,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    marginBottom: -2,
+  },
+  lipBottom: {
+    width: 20,
+    height: 10,
+    backgroundColor: theme.green,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
   },
 });
