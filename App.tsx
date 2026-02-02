@@ -1,7 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import { Image } from 'expo-image';
-import { StyleSheet, Text, View } from 'react-native';
-import { useCallback, useState } from 'react';
+import { Platform, StyleSheet, Text, View } from 'react-native';
+import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
+import { useCallback, useEffect, useState } from 'react';
 import { SwipeStack } from './src/components/SwipeStack';
 import { MatchModal } from './src/components/MatchModal';
 import { Profile } from './src/types/profile';
@@ -9,6 +10,12 @@ import { MOCK_PROFILES } from './src/data/mockProfiles';
 import { theme } from './src/theme';
 
 export default function App() {
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      polyfillCountryFlagEmojis();
+    }
+  }, []);
+
   const [profiles] = useState(() => [...MOCK_PROFILES]);
   const [matchModal, setMatchModal] = useState<{ visible: boolean; name?: string }>({
     visible: false,
@@ -32,13 +39,22 @@ export default function App() {
     <View style={styles.container}>
       <StatusBar style="dark" />
       <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <Image
+            source={require('./assets/app-icon-v2.png')}
+            style={styles.headerIcon}
+            contentFit="contain"
+          />
+          <View>
+            <Text style={styles.logo}>Inflama</Text>
+            <Text style={styles.tagline}>Swipe under the sequins</Text>
+          </View>
+        </View>
         <Image
-          source={require('./assets/app-icon-v2.png')}
-          style={styles.headerIcon}
-          contentFit="contain"
+          source={{ uri: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80&h=80&fit=crop' }}
+          style={styles.userAvatar}
+          contentFit="cover"
         />
-        <Text style={styles.logo}>Inflama</Text>
-        <Text style={styles.tagline}>Swipe under the sequins</Text>
       </View>
       <View style={styles.stackWrap}>
         <SwipeStack
@@ -62,17 +78,28 @@ const styles = StyleSheet.create({
     backgroundColor: theme.bgDark,
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingTop: 52,
     paddingBottom: 16,
     paddingHorizontal: 24,
-    alignItems: 'center',
     borderBottomWidth: 3,
     borderBottomColor: theme.green,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   headerIcon: {
     width: 48,
     height: 48,
-    marginBottom: 8,
+  },
+  userAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
   logo: {
     fontSize: 32,

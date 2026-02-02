@@ -1,15 +1,21 @@
 export type Gender = 'male' | 'female';
 
-export interface Profile {
+interface ProfileBase {
   id: string;
   name: string;
   age: number;
   imageUri: string;
-  countryCode: string; // e.g. "BR", "US" for flag emoji
+  countryCode: string;
   currentLocation: string;
-  leavingAt: Date; // when they're leaving the location
   gender: Gender;
 }
+
+/** Exactly one: leaving (has leavingAt) or living (livingInLocation: true). */
+export type Profile = ProfileBase &
+  (
+    | { livingInLocation: true }
+    | { livingInLocation?: false; leavingAt: Date }
+  );
 
 export interface SwipeDirection {
   x: number;

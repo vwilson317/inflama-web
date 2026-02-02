@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Profile } from '../types/profile';
 import { getFlagEmoji } from '../utils/flags';
@@ -12,17 +12,19 @@ interface ProfileCardProps {
 }
 
 export function ProfileCard({ profile, style }: ProfileCardProps) {
+  const isLiving = profile.livingInLocation === true;
   const [countdown, setCountdown] = useState(() =>
-    getCountdownText(profile.leavingAt)
+    isLiving ? '' : getCountdownText(profile.leavingAt)
   );
   const flag = getFlagEmoji(profile.countryCode);
 
   useEffect(() => {
+    if (isLiving) return;
     const interval = setInterval(() => {
       setCountdown(getCountdownText(profile.leavingAt));
     }, 60_000);
     return () => clearInterval(interval);
-  }, [profile.leavingAt]);
+  }, [isLiving, profile.leavingAt]);
 
   return (
     <View style={[styles.card, style]}>
@@ -43,8 +45,15 @@ export function ProfileCard({ profile, style }: ProfileCardProps) {
         <View style={styles.locationRow}>
           <Text style={styles.location}>📍 {profile.currentLocation}</Text>
         </View>
-        <View style={styles.countdownWrap}>
-          <Text style={styles.countdown}>{countdown}</Text>
+        <View
+          style={[
+            styles.countdownWrap,
+            isLiving ? styles.countdownWrapLiving : null,
+          ]}
+        >
+          <Text style={styles.countdown}>
+            {isLiving ? 'Lives here' : countdown}
+          </Text>
         </View>
       </View>
     </View>
@@ -91,6 +100,7 @@ const styles = StyleSheet.create({
   },
   flag: {
     fontSize: 28,
+    fontFamily: Platform.OS === 'web' ? '"Twemoji Country Flags", sans-serif' : undefined,
   },
   locationRow: {
     marginTop: 4,
@@ -106,6 +116,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
+  },
+  countdownWrapLiving: {
+    backgroundColor: theme.green,
   },
   countdown: {
     fontSize: 13,

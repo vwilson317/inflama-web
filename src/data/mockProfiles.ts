@@ -22,7 +22,7 @@ export const MOCK_MEN: Profile[] = [
     imageUri: 'https://picsum.photos/seed/m1/400/600',
     countryCode: 'BR',
     currentLocation: 'Rio de Janeiro',
-    leavingAt: addDays(now, 5),
+    livingInLocation: true,
     gender: 'male',
   },
   {
@@ -75,7 +75,7 @@ export const MOCK_WOMEN: Profile[] = [
     imageUri: 'https://picsum.photos/seed/w1/400/600',
     countryCode: 'BR',
     currentLocation: 'Rio de Janeiro',
-    leavingAt: addDays(now, 4),
+    livingInLocation: true,
     gender: 'female',
   },
   {
