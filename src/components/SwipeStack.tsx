@@ -25,6 +25,7 @@ interface SwipeStackProps {
   onSwipeLeft?: (profile: Profile) => void;
   onSwipeRight?: (profile: Profile) => void;
   onOutOfLikes?: () => void;
+  onReloadProfiles?: () => void;
 }
 
 function springBack(translateX: Animated.Value, translateY: Animated.Value, rotate: Animated.Value) {
@@ -56,6 +57,7 @@ export function SwipeStack({
   onSwipeLeft,
   onSwipeRight,
   onOutOfLikes,
+  onReloadProfiles,
 }: SwipeStackProps) {
   const [index, setIndex] = useState(0);
   const translateX = useRef(new Animated.Value(0)).current;
@@ -215,6 +217,11 @@ export function SwipeStack({
       <View style={styles.empty}>
         <Text style={styles.emptyText}>No more profiles</Text>
         <Text style={styles.emptySub}>Flame went out — check back later!</Text>
+        {onReloadProfiles && (
+          <TouchableOpacity style={styles.reloadButton} onPress={onReloadProfiles} activeOpacity={0.9}>
+            <Text style={styles.reloadButtonText}>Reload profiles</Text>
+          </TouchableOpacity>
+        )}
       </View>
     );
   }
@@ -309,6 +316,18 @@ const styles = StyleSheet.create({
   emptySub: {
     fontSize: 16,
     color: 'rgba(255,255,255,0.85)',
+  },
+  reloadButton: {
+    marginTop: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 24,
+    backgroundColor: theme.blue,
+  },
+  reloadButtonText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#ffffff',
   },
   // Absolute bottom row that overlaps the lower part of the card
   actionRow: {

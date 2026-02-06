@@ -14,6 +14,14 @@ import { MOCK_PROFILES } from './src/data/mockProfiles';
 import { theme } from './src/theme';
 
 const MOBILE_MAX_WIDTH = 768;
+const INITIAL_LIKES = 3;
+const MATCHES_STORAGE_KEY = 'inflama_matches';
+
+type StoredMatch = {
+  id: string;
+  name: string;
+  instagram?: string;
+};
 
 export default function App() {
   const { width } = useWindowDimensions();
@@ -25,14 +33,33 @@ export default function App() {
     }
   }, []);
 
-  const [profiles] = useState(() => [...MOCK_PROFILES]);
-  const [likesRemaining, setLikesRemaining] = useState(3);
+  const [profiles, setProfiles] = useState<Profile[]>(() => [...MOCK_PROFILES]);
+  const [likesRemaining, setLikesRemaining] = useState(INITIAL_LIKES);
+  const [matches, setMatches] = useState<StoredMatch[]>([]);
   const [matchModal, setMatchModal] = useState<{ visible: boolean; name?: string; instagram?: string }>({
     visible: false,
     name: undefined,
     instagram: undefined,
   });
   const [outOfLikesModalVisible, setOutOfLikesModalVisible] = useState(false);
+  const [reloadToken, setReloadToken] = useState(0);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    try {
+      const stored = window.localStorage.getItem(MATCHES_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored) as StoredMatch[];
+        if (Array.isArray(parsed)) {
+          setMatches(parsed);
+          const matchedIds = new Set(parsed.map((m) => m.id));
+          setProfiles(() => MOCK_PROFILES.filter((p) => !matchedIds.has(p.id)));
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to load stored matches', err);
+    }
+  }, []);
 
   const showOutOfLikesModal = useCallback(() => {
     setOutOfLikesModalVisible(true);
@@ -50,11 +77,37 @@ export default function App() {
     console.log('Like:', profile.name);
     setLikesRemaining((n) => Math.max(0, n - 1));
     setMatchModal({ visible: true, name: profile.name, instagram: profile.instagram });
+    setMatches((prev) => {
+      const next: StoredMatch[] = [
+        ...prev,
+        {
+          id: profile.id,
+          name: profile.name,
+          instagram: profile.instagram,
+        },
+      ];
+      if (Platform.OS === 'web') {
+        try {
+          window.localStorage.setItem(MATCHES_STORAGE_KEY, JSON.stringify(next));
+        } catch (err) {
+          console.warn('Failed to persist matches', err);
+        }
+      }
+      return next;
+    });
   }, []);
 
   const closeMatchModal = useCallback(() => {
     setMatchModal((m) => ({ ...m, visible: false }));
   }, []);
+
+  const reloadUnmatchedProfiles = useCallback(() => {
+    setProfiles(() => {
+      const matchedIds = new Set(matches.map((m) => m.id));
+      return MOCK_PROFILES.filter((p) => !matchedIds.has(p.id));
+    });
+    setReloadToken((t) => t + 1);
+  }, [matches]);
 
   if (isWebDesktop) {
     return (
@@ -96,11 +149,13 @@ export default function App() {
       </View>
       <View style={styles.stackWrap}>
         <SwipeStack
+          key={reloadToken}
           profiles={profiles}
           likesRemaining={likesRemaining}
           onSwipeLeft={handleSwipeLeft}
           onSwipeRight={handleSwipeRight}
           onOutOfLikes={showOutOfLikesModal}
+          onReloadProfiles={reloadUnmatchedProfiles}
         />
       </View>
       <MatchModal
