@@ -127,27 +127,29 @@ export default function App() {
     <View style={styles.container}>
       <StatusBar style="dark" />
       <View style={styles.header}>
-        <View style={styles.headerLeft}>
+        <View style={styles.headerCenter}>
           <Image
             source={require('./assets/icon.png')}
             style={styles.headerIcon}
             contentFit="contain"
           />
-          <View>
-            <Text style={styles.logo}>Inflama</Text>
+          <View style={styles.logoBlock}>
+            <Image
+              source={require('./assets/icon-text.png')}
+              style={styles.logoImage}
+              contentFit="contain"
+            />
+            <Text style={styles.tagline}>One photo. No chat. Just vibes.</Text>
           </View>
         </View>
         <View style={styles.headerRight}>
           <Pressable
             onPress={toggleMenu}
-            style={({ pressed }) => [
-              styles.headerMenuButton,
-              pressed && styles.headerMenuButtonPressed,
-            ]}
+            style={styles.headerMenuButton}
             accessibilityRole="button"
             accessibilityLabel="Open menu"
           >
-            <FontAwesomeIcon icon={faBars} size={20} color={theme.textSecondary} />
+            <FontAwesomeIcon icon={faBars} size={28} color="#9ca3af" />
           </Pressable>
           {isMenuOpen ? (
             <View style={styles.headerMenuPanel}>
@@ -217,41 +219,43 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 42,
-    paddingBottom: 13,
+    justifyContent: 'center',
+    paddingTop: 20,
+    paddingBottom: 10,
     paddingHorizontal: 24,
     zIndex: 10,
     elevation: 10,
   },
-  headerLeft: {
+  headerCenter: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    justifyContent: 'center',
+    gap: 2,
+  },
+  logoBlock: {
+    alignItems: 'center',
   },
   headerIcon: {
-    width: 52,
-    height: 52,
+    width: 72,
+    height: 72,
+    transform: [{ scaleX: 1.15 }, { scaleY: 1 }],
   },
   headerRight: {
+    position: 'absolute',
+    right: 24,
+    top: 20,
+    bottom: 10,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 16,
-    position: 'relative',
     zIndex: 11,
   },
   headerMenuButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 52,
+    height: 52,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0,39,118,0.08)',
-    borderWidth: 1,
-    borderColor: 'rgba(0,39,118,0.12)',
-  },
-  headerMenuButtonPressed: {
-    backgroundColor: 'rgba(0,39,118,0.14)',
   },
   headerMenuPanel: {
     position: 'absolute',
@@ -291,24 +295,22 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
   },
-  logo: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: theme.textPrimary,
-    letterSpacing: 2,
-    textShadowColor: theme.blue,
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+  logoImage: {
+    height: 54,
+    width: 190,
+    marginLeft: -18,
   },
   tagline: {
-    fontSize: 14,
-    color: theme.textSecondary,
-    marginTop: 4,
-    letterSpacing: 1,
+    fontSize: 10,
+    color: '#9ca3af',
+    marginTop: -7,
+    letterSpacing: 1.2,
+    textAlign: 'center',
+    width: 190,
   },
   stackWrap: {
     flex: 1,
-    paddingTop: 24,
+    paddingTop: 5,
     paddingHorizontal: 20,
     paddingBottom: 100,
     overflow: 'visible',
