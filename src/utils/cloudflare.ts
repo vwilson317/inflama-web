@@ -1,15 +1,24 @@
 /**
- * Cloudflare R2 configuration
- */
-const CLOUDFLARE_ACCOUNT_ID = 'b2853b5750a1d01efcd157ea2501621d';
-const CLOUDFLARE_BUCKET_NAME = 'inflama';
-
-/**
- * Generates a public URL for an image stored in Cloudflare R2
- * @param imageKey - The key/path of the image in the R2 bucket (e.g., 'profiles/image.jpg')
- * @returns The public URL for the image
+ * Generates a public URL for an image stored in Cloudflare R2.
+ *
+ * Prefer using an Expo public env var so web builds can configure
+ * the base URL without code changes:
+ *
+ *   EXPO_PUBLIC_IMAGE_BASE_URL=https://b2853b5750a1d01efcd157ea2501621d.r2.cloudflarestorage.com/inflama
+ *
+ * If that env var is not set, we fall back to a sane default based on
+ * your current R2 S3 endpoint.
  */
 export function getCloudflareImageUrl(imageKey: string): string {
-  // Cloudflare R2 public URL format: https://pub-<account-id>.r2.dev/<bucket-name>/<object-key>
-  return `https://pub-${CLOUDFLARE_ACCOUNT_ID}.r2.dev/${CLOUDFLARE_BUCKET_NAME}/${imageKey}`;
+  const rawBase =
+    ((process.env as any).EXPO_PUBLIC_IMAGE_BASE_URL as string | undefined) ??
+    'https://b2853b5750a1d01efcd157ea2501621d.r2.cloudflarestorage.com/inflama';
+
+  // Ensure no trailing slash so we don't end up with double slashes
+  const base = rawBase.replace(/\/+$/, '');
+
+  // Also strip any accidental leading slashes from the key
+  const key = imageKey.replace(/^\/+/, '');
+
+  return `${base}/${key}`;
 }

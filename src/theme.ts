@@ -20,8 +20,9 @@ export const theme = {
 
   // Neutrals
   white: '#ffffff',
-  textPrimary: '#1a1a1a',
-  textSecondary: 'rgba(26,26,26,0.85)',
+  // Global typography: burnt orange
+  textPrimary: '#cc5500',
+  textSecondary: 'rgba(204,85,0,0.85)',
 
   // Cards: deep blue with subtle green tint (glossy sphere feel)
   cardBg: '#002776',

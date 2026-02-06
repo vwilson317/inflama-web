@@ -73,13 +73,12 @@ export default function App() {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <Image
-            source={require('./assets/app-icon-v2.png')}
+            source={require('./assets/icon.png')}
             style={styles.headerIcon}
             contentFit="contain"
           />
           <View>
             <Text style={styles.logo}>Inflama</Text>
-            <Text style={styles.tagline}>Swipe under the sequins</Text>
           </View>
         </View>
         <View style={styles.headerRight}>
@@ -147,11 +146,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 52,
-    paddingBottom: 16,
+    paddingTop: 42,
+    paddingBottom: 13,
     paddingHorizontal: 24,
-    borderBottomWidth: 3,
-    borderBottomColor: theme.green,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -159,8 +156,8 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   headerIcon: {
-    width: 48,
-    height: 48,
+    width: 52,
+    height: 52,
   },
   headerRight: {
     flexDirection: 'row',
@@ -192,7 +189,7 @@ const styles = StyleSheet.create({
   logo: {
     fontSize: 32,
     fontWeight: '800',
-    color: theme.gold,
+    color: theme.textPrimary,
     letterSpacing: 2,
     textShadowColor: theme.blue,
     textShadowOffset: { width: 0, height: 1 },

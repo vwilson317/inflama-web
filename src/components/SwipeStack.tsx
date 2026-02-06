@@ -79,7 +79,9 @@ export function SwipeStack({
 
   const panResponder = useRef(
     PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
+      // Only capture pan once the user actually drags, so taps on buttons inside
+      // the card still work.
+      onStartShouldSetPanResponder: () => false,
       onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 10,
       onPanResponderMove: (_, gestureState) => {
         translateX.setValue(gestureState.dx);
@@ -218,52 +220,42 @@ export function SwipeStack({
   }
 
   return (
-    <View style={styles.wrapper}>
-      {/* Card area */}
+    <View nativeID="profile-card-parent-dev" style={styles.wrapper}>
       <View style={styles.container}>
-        {/* Back cards (next in stack) */}
-        {index + 1 < profiles.length && (
-          <Animated.View
-            style={[
-              styles.cardContainer,
-              styles.backCard,
-              {
-                transform: [{ scale: nextCardScale }],
-                opacity: nextCardOpacity,
-              },
-            ]}
-            pointerEvents="none"
-          >
-            <ProfileCard profile={profiles[index + 1]} />
-          </Animated.View>
-        )}
-        {index + 2 < profiles.length && (
-          <View style={[styles.cardContainer, styles.backCard2]} pointerEvents="none">
-            <ProfileCard profile={profiles[index + 2]} />
-          </View>
-        )}
-
-        {/* Top draggable card */}
+        {/* Single, top draggable card */}
         <Animated.View
           style={[styles.cardContainer, styles.topCard, topCardStyle]}
           {...panResponder.panHandlers}
         >
           <ProfileCard profile={currentProfile} />
         </Animated.View>
-
       </View>
 
-      {/* Action buttons */}
-      <View style={styles.actionRow}>
-        <TouchableOpacity style={[styles.actionButton, styles.passButton]} onPress={handleSwipeLeft}>
-          <FontAwesomeIcon icon={faXmark as IconProp} size={34} color={theme.blue} />
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.actionButton, styles.superButton]} onPress={handleSuperLike}>
-          <FontAwesomeIcon icon={faStar as IconProp} size={34} color={theme.gold} />
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.actionButton, styles.kissButton]} onPress={handleSwipeRight}>
-          <FontAwesomeIcon icon={faHeart as IconProp} size={34} color={theme.green} />
-        </TouchableOpacity>
+      {/* Bottom action buttons that slightly overlap the card */}
+      <View style={styles.actionRow} pointerEvents="box-none">
+        <View style={styles.actionRowInner}>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.passButton]}
+            onPress={handleSwipeLeft}
+            activeOpacity={0.9}
+          >
+            <FontAwesomeIcon icon={faXmark as IconProp} size={34} color={theme.blue} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.superButton]}
+            onPress={handleSuperLike}
+            activeOpacity={0.9}
+          >
+            <FontAwesomeIcon icon={faStar as IconProp} size={34} color={theme.gold} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.kissButton]}
+            onPress={handleSwipeRight}
+            activeOpacity={0.9}
+          >
+            <FontAwesomeIcon icon={faHeart as IconProp} size={34} color={theme.green} />
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -273,8 +265,7 @@ const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
     width: '100%',
-    maxWidth: 400,
-    alignSelf: 'center',
+    alignSelf: 'stretch',
   },
   container: {
     flex: 1,
@@ -285,7 +276,7 @@ const styles = StyleSheet.create({
   cardContainer: {
     position: 'absolute',
     width: '100%',
-    maxWidth: 360,
+    height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -319,12 +310,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'rgba(255,255,255,0.85)',
   },
+  // Absolute bottom row that overlaps the lower part of the card
   actionRow: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: -60,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  actionRowInner: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     gap: 40,
-    paddingVertical: 28,
+    // Sit closer to the bottom edge for a more subtle overlap
+    marginBottom: 0,
   },
   actionButton: {
     width: 80,
@@ -337,19 +338,17 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
+    backgroundColor: '#1a1a2e',
   },
   passButton: {
-    backgroundColor: '#1a1a2e',
     borderWidth: 3,
     borderColor: theme.blue,
   },
   superButton: {
-    backgroundColor: '#1a1a2e',
     borderWidth: 3,
     borderColor: theme.gold,
   },
   kissButton: {
-    backgroundColor: '#1a1a2e',
     borderWidth: 3,
     borderColor: theme.green,
   },

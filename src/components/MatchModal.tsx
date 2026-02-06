@@ -40,11 +40,13 @@ interface MatchModalProps {
 function useConfetti(active: boolean) {
   const particles = useRef(
     Array.from({ length: CONFETTI_COUNT }, () => {
-      const duration = 2000 + Math.random() * 1500;
+      // Short, punchy ~1s confetti
+      const duration = 700 + Math.random() * 400;
       return {
         leftPos: Math.random() * SCREEN_WIDTH,
         translateY: new Animated.Value(0),
         rotate: new Animated.Value(0),
+        opacity: new Animated.Value(1),
         delay: Math.random() * 400,
         duration,
         rotateEnd: 3 + Math.random() * 4,
@@ -60,6 +62,7 @@ function useConfetti(active: boolean) {
     particles.forEach((p) => {
       p.translateY.setValue(0);
       p.rotate.setValue(0);
+       p.opacity.setValue(1);
     });
     const animations = particles.map((p) => {
       const fallAnim = Animated.timing(p.translateY, {
@@ -72,9 +75,14 @@ function useConfetti(active: boolean) {
         duration: p.duration,
         useNativeDriver: true,
       });
+      const fadeAnim = Animated.timing(p.opacity, {
+        toValue: 0,
+        duration: p.duration,
+        useNativeDriver: true,
+      });
       return Animated.delay(
         p.delay,
-        Animated.parallel([fallAnim, rotateAnim])
+        Animated.parallel([fallAnim, rotateAnim, fadeAnim])
       );
     });
     Animated.stagger(0, animations).start();
@@ -169,6 +177,7 @@ export function MatchModal({
                 style={[
                   styles.confetti,
                   {
+                    opacity: p.opacity,
                     left: p.leftPos,
                     width: p.size,
                     height: p.shape === 'rect' ? p.size * 1.4 : p.size,
@@ -252,7 +261,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '800',
-    color: theme.gold,
+    color: theme.textPrimary,
     marginBottom: 8,
     textShadowColor: theme.blue,
     textShadowOffset: { width: 0, height: 2 },

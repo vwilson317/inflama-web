@@ -106,7 +106,8 @@ export function MatchModal({
     if (!visible || confettiFired.current) return;
     confettiFired.current = true;
 
-    const duration = 3500;
+    // Short, punchy ~1s confetti burst
+    const duration = 1000;
     const end = Date.now() + duration;
     let lastBurst = 0;
     const burstInterval = 120;
@@ -115,20 +116,26 @@ export function MatchModal({
       const now = Date.now();
       if (now < end && now - lastBurst >= burstInterval) {
         lastBurst = now;
+        const timeLeft = end - now;
+        const progress = Math.max(timeLeft / duration, 0); // 1 -> 0
+        const particleCount = Math.max(Math.round(4 * progress), 0);
+
+        if (particleCount > 0) {
         confetti({
-          particleCount: 4,
+          particleCount,
           angle: 60,
           spread: 55,
           origin: { x: 0 },
           colors: CONFETTI_COLORS,
         });
         confetti({
-          particleCount: 4,
+          particleCount,
           angle: 120,
           spread: 55,
           origin: { x: 1 },
           colors: CONFETTI_COLORS,
         });
+        }
       }
       if (now < end) {
         requestAnimationFrame(frame);
@@ -198,7 +205,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '800',
-    color: theme.gold,
+    color: theme.textPrimary,
     marginBottom: 8,
     textShadowColor: theme.blue,
     textShadowOffset: { width: 0, height: 2 },

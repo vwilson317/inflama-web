@@ -58,7 +58,10 @@ export function ProfileCard({ profile, style }: ProfileCardProps) {
   }, [isLeavingSoon, pulseAnim]);
 
   return (
-    <View style={[styles.card, style]}>
+    <View
+      nativeID="profile-card-container-dev"
+      style={[styles.card, styles.cardDevTall, style]}
+    >
       <View style={styles.imageWrap}>
         <Image
           source={{ uri: profile.imageUri }}
@@ -103,13 +106,15 @@ export function ProfileCard({ profile, style }: ProfileCardProps) {
 
 const styles = StyleSheet.create({
   card: {
+    flex: 1,
     width: '100%',
-    maxWidth: 360,
-    aspectRatio: 3 / 4,
     borderRadius: 24,
     overflow: 'hidden',
     backgroundColor: theme.cardBg,
     ...theme.shadow,
+  },
+  cardDevTall: {
+    height: '100%',
   },
   imageWrap: {
     flex: 1,
