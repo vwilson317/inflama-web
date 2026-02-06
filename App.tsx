@@ -45,7 +45,6 @@ export default function App() {
   });
   const [outOfLikesModalVisible, setOutOfLikesModalVisible] = useState(false);
   const [signupModalVisible, setSignupModalVisible] = useState(false);
-  const [pendingSignupPrompt, setPendingSignupPrompt] = useState(false);
   const [isSwipeLocked, setIsSwipeLocked] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
 
@@ -66,13 +65,6 @@ export default function App() {
     }
   }, []);
 
-  useEffect(() => {
-    if (!matchModal.visible && pendingSignupPrompt) {
-      setSignupModalVisible(true);
-      setPendingSignupPrompt(false);
-    }
-  }, [matchModal.visible, pendingSignupPrompt]);
-
   const showOutOfLikesModal = useCallback(() => {
     if (isSwipeLocked) {
       setSignupModalVisible(true);
@@ -92,15 +84,14 @@ export default function App() {
   const handleSwipeRight = useCallback((profile: Profile) => {
     if (isSwipeLocked) return;
     console.log('Like:', profile.name);
-    setLikesRemaining((n) => {
-      const next = Math.max(0, n - 1);
-      if (next === 0) {
-        setIsSwipeLocked(true);
-        setPendingSignupPrompt(true);
-      }
-      return next;
-    });
-    setMatchModal({ visible: true, name: profile.name, instagram: profile.instagram });
+    const isFinalLike = likesRemaining <= 1;
+    setLikesRemaining((n) => Math.max(0, n - 1));
+    if (isFinalLike) {
+      setIsSwipeLocked(true);
+      setSignupModalVisible(true);
+    } else {
+      setMatchModal({ visible: true, name: profile.name, instagram: profile.instagram });
+    }
     setMatches((prev) => {
       const next: StoredMatch[] = [
         ...prev,
@@ -119,7 +110,7 @@ export default function App() {
       }
       return next;
     });
-  }, [isSwipeLocked]);
+  }, [isSwipeLocked, likesRemaining]);
 
   const closeMatchModal = useCallback(() => {
     setMatchModal((m) => ({ ...m, visible: false }));
