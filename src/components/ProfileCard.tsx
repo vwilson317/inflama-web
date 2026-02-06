@@ -130,8 +130,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingHorizontal: 20,
-    paddingVertical: 16,
-    paddingTop: 48,
+    paddingTop: 14,
+    paddingBottom: 30,
     backgroundColor: 'rgba(0,0,0,0.55)',
   },
   row: {
