@@ -82,16 +82,18 @@ export default function App() {
           </View>
         </View>
         <View style={styles.headerRight}>
-          <View style={styles.likesCounter}>
-            <FontAwesomeIcon icon={faHeart as IconProp} size={18} color={theme.green} />
-            <Text style={styles.likesCount}>{likesRemaining}</Text>
+          <View style={styles.headerMenu}>
+            <FontAwesomeIcon icon={faBars} size={20} color={theme.textSecondary} style={styles.headerMenuIcon} />
+            <View style={styles.likesCounter}>
+              <FontAwesomeIcon icon={faHeart as IconProp} size={18} color={theme.green} />
+              <Text style={styles.likesCount}>{likesRemaining}</Text>
+            </View>
+            <Image
+              source={{ uri: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80&h=80&fit=crop' }}
+              style={styles.userAvatar}
+              contentFit="cover"
+            />
           </View>
-          <FontAwesomeIcon icon={faBars} size={20} color={theme.textSecondary} style={styles.headerIconFa} />
-          <Image
-            source={{ uri: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80&h=80&fit=crop' }}
-            style={styles.userAvatar}
-            contentFit="cover"
-          />
         </View>
       </View>
       <View style={styles.stackWrap}>
@@ -164,6 +166,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 16,
   },
+  headerMenu: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 22,
+    backgroundColor: 'rgba(0,39,118,0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(0,39,118,0.12)',
+  },
   likesCounter: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -178,7 +191,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: theme.green,
   },
-  headerIconFa: {
+  headerMenuIcon: {
     marginRight: 0,
   },
   userAvatar: {
