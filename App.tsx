@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Image } from 'expo-image';
 import { Platform, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCog, faHeart } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faHeart } from '@fortawesome/free-solid-svg-icons';
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
 import { useCallback, useEffect, useState } from 'react';
@@ -86,7 +86,7 @@ export default function App() {
             <FontAwesomeIcon icon={faHeart as IconProp} size={18} color={theme.green} />
             <Text style={styles.likesCount}>{likesRemaining}</Text>
           </View>
-          <FontAwesomeIcon icon={faCog} size={20} color={theme.textSecondary} style={styles.headerIconFa} />
+          <FontAwesomeIcon icon={faBars} size={20} color={theme.textSecondary} style={styles.headerIconFa} />
           <Image
             source={{ uri: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80&h=80&fit=crop' }}
             style={styles.userAvatar}
