@@ -11,8 +11,11 @@
  */
 export function getCloudflareImageUrl(imageKey: string): string {
   const rawBase =
-    ((process.env as any).EXPO_PUBLIC_IMAGE_BASE_URL as string | undefined) ??
-    'https://b2853b5750a1d01efcd157ea2501621d.r2.cloudflarestorage.com/inflama';
+    (typeof process !== 'undefined'
+      ? ((process.env as any)
+          .EXPO_PUBLIC_IMAGE_BASE_URL as string | undefined)
+      : undefined) ??
+    'https://pub-45afd9f825694e538736de72a58414c9.r2.dev';
 
   // Ensure no trailing slash so we don't end up with double slashes
   const base = rawBase.replace(/\/+$/, '');
