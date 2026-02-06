@@ -9,6 +9,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { SwipeStack } from './src/components/SwipeStack';
 import { MatchModal } from './src/components/MatchModal';
 import { OutOfLikesModal } from './src/components/OutOfLikesModal';
+import { SignupModal } from './src/components/SignupModal';
 import { Profile } from './src/types/profile';
 import { MOCK_PROFILES } from './src/data/mockProfiles';
 import { theme } from './src/theme';
@@ -35,7 +36,7 @@ export default function App() {
 
   const [matches, setMatches] = useState<StoredMatch[]>([]);
   const [profiles, setProfiles] = useState(() => [...MOCK_PROFILES]);
-  const [likesRemaining, setLikesRemaining] = useState(3);
+  const [likesRemaining, setLikesRemaining] = useState(INITIAL_LIKES);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [matchModal, setMatchModal] = useState<{ visible: boolean; name?: string; instagram?: string }>({
     visible: false,
@@ -43,6 +44,9 @@ export default function App() {
     instagram: undefined,
   });
   const [outOfLikesModalVisible, setOutOfLikesModalVisible] = useState(false);
+  const [signupModalVisible, setSignupModalVisible] = useState(false);
+  const [pendingSignupPrompt, setPendingSignupPrompt] = useState(false);
+  const [isSwipeLocked, setIsSwipeLocked] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
@@ -62,9 +66,20 @@ export default function App() {
     }
   }, []);
 
+  useEffect(() => {
+    if (!matchModal.visible && pendingSignupPrompt) {
+      setSignupModalVisible(true);
+      setPendingSignupPrompt(false);
+    }
+  }, [matchModal.visible, pendingSignupPrompt]);
+
   const showOutOfLikesModal = useCallback(() => {
+    if (isSwipeLocked) {
+      setSignupModalVisible(true);
+      return;
+    }
     setOutOfLikesModalVisible(true);
-  }, []);
+  }, [isSwipeLocked]);
 
   const closeOutOfLikesModal = useCallback(() => {
     setOutOfLikesModalVisible(false);
@@ -75,8 +90,16 @@ export default function App() {
   }, []);
 
   const handleSwipeRight = useCallback((profile: Profile) => {
+    if (isSwipeLocked) return;
     console.log('Like:', profile.name);
-    setLikesRemaining((n) => Math.max(0, n - 1));
+    setLikesRemaining((n) => {
+      const next = Math.max(0, n - 1);
+      if (next === 0) {
+        setIsSwipeLocked(true);
+        setPendingSignupPrompt(true);
+      }
+      return next;
+    });
     setMatchModal({ visible: true, name: profile.name, instagram: profile.instagram });
     setMatches((prev) => {
       const next: StoredMatch[] = [
@@ -96,10 +119,14 @@ export default function App() {
       }
       return next;
     });
-  }, []);
+  }, [isSwipeLocked]);
 
   const closeMatchModal = useCallback(() => {
     setMatchModal((m) => ({ ...m, visible: false }));
+  }, []);
+
+  const closeSignupModal = useCallback(() => {
+    setSignupModalVisible(false);
   }, []);
 
   const toggleMenu = useCallback(() => {
@@ -171,6 +198,7 @@ export default function App() {
           key={reloadToken}
           profiles={profiles}
           likesRemaining={likesRemaining}
+          isSwipeDisabled={isSwipeLocked}
           onSwipeLeft={handleSwipeLeft}
           onSwipeRight={handleSwipeRight}
           onOutOfLikes={showOutOfLikesModal}
@@ -187,6 +215,7 @@ export default function App() {
         visible={outOfLikesModalVisible}
         onClose={closeOutOfLikesModal}
       />
+      <SignupModal visible={signupModalVisible} onClose={closeSignupModal} />
     </View>
   );
 }
