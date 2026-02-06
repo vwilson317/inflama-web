@@ -1,8 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import { Image } from 'expo-image';
-import { Platform, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCog, faHeart } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faHeart } from '@fortawesome/free-solid-svg-icons';
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
 import { useCallback, useEffect, useState } from 'react';
@@ -27,6 +27,7 @@ export default function App() {
 
   const [profiles] = useState(() => [...MOCK_PROFILES]);
   const [likesRemaining, setLikesRemaining] = useState(3);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [matchModal, setMatchModal] = useState<{ visible: boolean; name?: string; instagram?: string }>({
     visible: false,
     name: undefined,
@@ -56,6 +57,10 @@ export default function App() {
     setMatchModal((m) => ({ ...m, visible: false }));
   }, []);
 
+  const toggleMenu = useCallback(() => {
+    setIsMenuOpen((open) => !open);
+  }, []);
+
   if (isWebDesktop) {
     return (
       <View style={styles.mobileOnly}>
@@ -82,16 +87,30 @@ export default function App() {
           </View>
         </View>
         <View style={styles.headerRight}>
-          <View style={styles.likesCounter}>
-            <FontAwesomeIcon icon={faHeart as IconProp} size={18} color={theme.green} />
-            <Text style={styles.likesCount}>{likesRemaining}</Text>
-          </View>
-          <FontAwesomeIcon icon={faCog} size={20} color={theme.textSecondary} style={styles.headerIconFa} />
-          <Image
-            source={{ uri: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80&h=80&fit=crop' }}
-            style={styles.userAvatar}
-            contentFit="cover"
-          />
+          <Pressable
+            onPress={toggleMenu}
+            style={({ pressed }) => [
+              styles.headerMenuButton,
+              pressed && styles.headerMenuButtonPressed,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel="Open menu"
+          >
+            <FontAwesomeIcon icon={faBars} size={20} color={theme.textSecondary} />
+          </Pressable>
+          {isMenuOpen ? (
+            <View style={styles.headerMenuPanel}>
+              <View style={styles.likesCounter}>
+                <FontAwesomeIcon icon={faHeart as IconProp} size={18} color={theme.green} />
+                <Text style={styles.likesCount}>{likesRemaining}</Text>
+              </View>
+              <Image
+                source={{ uri: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80&h=80&fit=crop' }}
+                style={styles.userAvatar}
+                contentFit="cover"
+              />
+            </View>
+          ) : null}
         </View>
       </View>
       <View style={styles.stackWrap}>
@@ -149,6 +168,8 @@ const styles = StyleSheet.create({
     paddingTop: 42,
     paddingBottom: 13,
     paddingHorizontal: 24,
+    zIndex: 10,
+    elevation: 10,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -163,6 +184,40 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
+    position: 'relative',
+    zIndex: 11,
+  },
+  headerMenuButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,39,118,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(0,39,118,0.12)',
+  },
+  headerMenuButtonPressed: {
+    backgroundColor: 'rgba(0,39,118,0.14)',
+  },
+  headerMenuPanel: {
+    position: 'absolute',
+    top: 48,
+    right: 0,
+    backgroundColor: theme.white,
+    borderWidth: 1,
+    borderColor: 'rgba(0,39,118,0.12)',
+    borderRadius: 18,
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    shadowColor: '#002776',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    elevation: 12,
+    zIndex: 1000,
   },
   likesCounter: {
     flexDirection: 'row',
@@ -177,9 +232,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: theme.green,
-  },
-  headerIconFa: {
-    marginRight: 0,
   },
   userAvatar: {
     width: 40,
