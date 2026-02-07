@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -74,14 +74,12 @@ export function SwipeStack({
   const onOutOfLikesRef = useRef(onOutOfLikes);
   const likesRemainingRef = useRef(likesRemaining);
   const isSwipeDisabledRef = useRef(isSwipeDisabled);
-  useEffect(() => {
-    currentProfileRef.current = currentProfile;
-    onSwipeLeftRef.current = onSwipeLeft;
-    onSwipeRightRef.current = onSwipeRight;
-    onOutOfLikesRef.current = onOutOfLikes;
-    likesRemainingRef.current = likesRemaining;
-    isSwipeDisabledRef.current = isSwipeDisabled;
-  }, [currentProfile, onSwipeLeft, onSwipeRight, onOutOfLikes, likesRemaining, isSwipeDisabled]);
+  currentProfileRef.current = currentProfile;
+  onSwipeLeftRef.current = onSwipeLeft;
+  onSwipeRightRef.current = onSwipeRight;
+  onOutOfLikesRef.current = onOutOfLikes;
+  likesRemainingRef.current = likesRemaining;
+  isSwipeDisabledRef.current = isSwipeDisabled;
 
   const panResponder = useRef(
     PanResponder.create({

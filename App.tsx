@@ -84,14 +84,16 @@ export default function App() {
   const handleSwipeRight = useCallback((profile: Profile) => {
     if (isSwipeLocked) return;
     console.log('Like:', profile.name);
-    const isFinalLike = likesRemaining <= 1;
-    setLikesRemaining((n) => Math.max(0, n - 1));
-    if (isFinalLike) {
-      setIsSwipeLocked(true);
-      setSignupModalVisible(true);
-    } else {
-      setMatchModal({ visible: true, name: profile.name, instagram: profile.instagram });
-    }
+    setLikesRemaining((n) => {
+      const next = Math.max(0, n - 1);
+      if (next === 0) {
+        setIsSwipeLocked(true);
+        setSignupModalVisible(true);
+      } else {
+        setMatchModal({ visible: true, name: profile.name, instagram: profile.instagram });
+      }
+      return next;
+    });
     setMatches((prev) => {
       const next: StoredMatch[] = [
         ...prev,
@@ -110,7 +112,7 @@ export default function App() {
       }
       return next;
     });
-  }, [isSwipeLocked, likesRemaining]);
+  }, [isSwipeLocked]);
 
   const closeMatchModal = useCallback(() => {
     setMatchModal((m) => ({ ...m, visible: false }));
