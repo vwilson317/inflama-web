@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -22,6 +22,7 @@ const SWIPE_OUT_DURATION = 200;
 interface SwipeStackProps {
   profiles: Profile[];
   likesRemaining?: number;
+  isSwipeDisabled?: boolean;
   onSwipeLeft?: (profile: Profile) => void;
   onSwipeRight?: (profile: Profile) => void;
   onOutOfLikes?: () => void;
@@ -54,6 +55,7 @@ function springBack(translateX: Animated.Value, translateY: Animated.Value, rota
 export function SwipeStack({
   profiles,
   likesRemaining = Infinity,
+  isSwipeDisabled = false,
   onSwipeLeft,
   onSwipeRight,
   onOutOfLikes,
@@ -71,26 +73,31 @@ export function SwipeStack({
   const onSwipeRightRef = useRef(onSwipeRight);
   const onOutOfLikesRef = useRef(onOutOfLikes);
   const likesRemainingRef = useRef(likesRemaining);
-  useEffect(() => {
-    currentProfileRef.current = currentProfile;
-    onSwipeLeftRef.current = onSwipeLeft;
-    onSwipeRightRef.current = onSwipeRight;
-    onOutOfLikesRef.current = onOutOfLikes;
-    likesRemainingRef.current = likesRemaining;
-  }, [currentProfile, onSwipeLeft, onSwipeRight, onOutOfLikes, likesRemaining]);
+  const isSwipeDisabledRef = useRef(isSwipeDisabled);
+  currentProfileRef.current = currentProfile;
+  onSwipeLeftRef.current = onSwipeLeft;
+  onSwipeRightRef.current = onSwipeRight;
+  onOutOfLikesRef.current = onOutOfLikes;
+  likesRemainingRef.current = likesRemaining;
+  isSwipeDisabledRef.current = isSwipeDisabled;
 
   const panResponder = useRef(
     PanResponder.create({
       // Only capture pan once the user actually drags, so taps on buttons inside
       // the card still work.
       onStartShouldSetPanResponder: () => false,
-      onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 10,
+      onMoveShouldSetPanResponder: (_, g) => !isSwipeDisabledRef.current && Math.abs(g.dx) > 10,
       onPanResponderMove: (_, gestureState) => {
+        if (isSwipeDisabledRef.current) return;
         translateX.setValue(gestureState.dx);
         translateY.setValue(gestureState.dy * 0.3);
         rotate.setValue(gestureState.dx * 0.02);
       },
       onPanResponderRelease: (_, gestureState) => {
+        if (isSwipeDisabledRef.current) {
+          springBack(translateX, translateY, rotate);
+          return;
+        }
         const { dx, vx } = gestureState;
         const shouldSwipeLeft = dx < -SWIPE_THRESHOLD || vx < -0.5;
         const shouldSwipeRight = dx > SWIPE_THRESHOLD || vx > 0.5;
@@ -173,6 +180,7 @@ export function SwipeStack({
   });
 
   const handleSwipeLeft = () => {
+    if (isSwipeDisabled) return;
     if (!currentProfile) return;
     Animated.timing(translateX, {
       toValue: -SCREEN_WIDTH * 1.2,
@@ -188,6 +196,7 @@ export function SwipeStack({
   };
 
   const handleSwipeRight = () => {
+    if (isSwipeDisabled) return;
     if (!currentProfile) return;
     if (likesRemaining <= 0) {
       onOutOfLikes?.();
@@ -239,26 +248,29 @@ export function SwipeStack({
       </View>
 
       {/* Bottom action buttons that slightly overlap the card */}
-      <View style={styles.actionRow} pointerEvents="box-none">
+      <View style={styles.actionRow} pointerEvents={isSwipeDisabled ? 'none' : 'box-none'}>
         <View style={styles.actionRowInner}>
           <TouchableOpacity
-            style={[styles.actionButton, styles.passButton]}
+            style={[styles.actionButton, styles.passButton, isSwipeDisabled && styles.disabledButton]}
             onPress={handleSwipeLeft}
             activeOpacity={0.9}
+            disabled={isSwipeDisabled}
           >
             <FontAwesomeIcon icon={faXmark as IconProp} size={34} color={theme.blue} />
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.actionButton, styles.superButton]}
+            style={[styles.actionButton, styles.superButton, isSwipeDisabled && styles.disabledButton]}
             onPress={handleSuperLike}
             activeOpacity={0.9}
+            disabled={isSwipeDisabled}
           >
             <FontAwesomeIcon icon={faStar as IconProp} size={34} color={theme.gold} />
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.actionButton, styles.kissButton]}
+            style={[styles.actionButton, styles.kissButton, isSwipeDisabled && styles.disabledButton]}
             onPress={handleSwipeRight}
             activeOpacity={0.9}
+            disabled={isSwipeDisabled}
           >
             <FontAwesomeIcon icon={faHeart as IconProp} size={34} color={theme.green} />
           </TouchableOpacity>
@@ -358,6 +370,9 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
     backgroundColor: '#1a1a2e',
+  },
+  disabledButton: {
+    opacity: 0.45,
   },
   passButton: {
     borderWidth: 3,
