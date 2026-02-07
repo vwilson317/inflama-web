@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faLock } from '@fortawesome/free-solid-svg-icons';
@@ -18,6 +18,16 @@ const CONTENT_HEIGHT = 320;
 export function SignupModal({ visible, onClose, onSignUp }: SignupModalProps) {
   if (!visible) return null;
 
+  const ignoreBackdropPressRef = useRef(true);
+  useEffect(() => {
+    if (!visible) return;
+    ignoreBackdropPressRef.current = true;
+    const timer = setTimeout(() => {
+      ignoreBackdropPressRef.current = false;
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [visible]);
+
   const handleSignUp = () => {
     if (onSignUp) {
       onSignUp();
@@ -26,9 +36,14 @@ export function SignupModal({ visible, onClose, onSignUp }: SignupModalProps) {
     onClose();
   };
 
+  const handleBackdropPress = () => {
+    if (ignoreBackdropPressRef.current) return;
+    onClose();
+  };
+
   return (
     <View style={styles.overlay}>
-      <TouchableWithoutFeedback onPress={onClose}>
+      <TouchableWithoutFeedback onPress={handleBackdropPress}>
         <View style={styles.backdrop} />
       </TouchableWithoutFeedback>
       <View style={styles.content}>

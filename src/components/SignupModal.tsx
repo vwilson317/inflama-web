@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   Modal,
   View,
@@ -24,11 +24,26 @@ interface SignupModalProps {
 export function SignupModal({ visible, onClose, onSignUp }: SignupModalProps) {
   if (!visible) return null;
 
+  const ignoreBackdropPressRef = useRef(true);
+  useEffect(() => {
+    if (!visible) return;
+    ignoreBackdropPressRef.current = true;
+    const timer = setTimeout(() => {
+      ignoreBackdropPressRef.current = false;
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [visible]);
+
   const handleSignUp = () => {
     if (onSignUp) {
       onSignUp();
       return;
     }
+    onClose();
+  };
+
+  const handleBackdropPress = () => {
+    if (ignoreBackdropPressRef.current) return;
     onClose();
   };
 
@@ -40,7 +55,7 @@ export function SignupModal({ visible, onClose, onSignUp }: SignupModalProps) {
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>
-        <TouchableWithoutFeedback onPress={onClose}>
+        <TouchableWithoutFeedback onPress={handleBackdropPress}>
           <View style={styles.backdrop} />
         </TouchableWithoutFeedback>
         <View style={styles.content}>
