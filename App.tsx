@@ -12,10 +12,14 @@ import { OutOfLikesModal } from './src/components/OutOfLikesModal';
 import { Profile } from './src/types/profile';
 import { MOCK_PROFILES } from './src/data/mockProfiles';
 import { theme } from './src/theme';
+import { supabase } from "./services/supabase";
+import { createSwipe } from "./services/swipeService";
+import { checkMatch } from "./services/swipeService";
 
 const MOBILE_MAX_WIDTH = 768;
 const INITIAL_LIKES = 3;
 const MATCHES_STORAGE_KEY = 'inflama_matches';
+const CURRENT_USER_ID = "demo_user";
 
 type StoredMatch = {
   id: string;
@@ -24,6 +28,18 @@ type StoredMatch = {
 };
 
 export default function App() {
+  useEffect(() => {
+  async function testConnection() {
+    const { data, error } = await supabase
+      .from("swipes")
+      .select("*");
+
+    console.log("Supabase test:", data, error);
+  }
+
+  testConnection();
+}, []);
+
   const { width } = useWindowDimensions();
   const isWebDesktop = Platform.OS === 'web' && width > MOBILE_MAX_WIDTH;
 
@@ -70,13 +86,64 @@ export default function App() {
     setOutOfLikesModalVisible(false);
   }, []);
 
-  const handleSwipeLeft = useCallback((profile: Profile) => {
+  const handleSwipeLeft = useCallback(async (profile: Profile) => {
     console.log('Nope:', profile.name);
+
+    try {
+    const { error } = await createSwipe(
+      CURRENT_USER_ID,
+      profile.id,
+      false
+    );
+
+    if (error) {
+      console.error("Error saving swipe left:", error);
+    }
+  } catch (err) {
+    console.error("Unexpected error saving swipe left:", err);
+  }
   }, []);
 
-  const handleSwipeRight = useCallback((profile: Profile) => {
+  const handleSwipeRight = useCallback(async (profile: Profile) => {
     console.log('Like:', profile.name);
+
+    try {
+    const { error } = await createSwipe(
+      CURRENT_USER_ID,
+      profile.id,
+      true
+    );
+
+    if (error) {
+      console.error("Error saving swipe right:", error);
+      return; 
+    }
+
+    const { data: matchData, error: matchError } =
+      await checkMatch(CURRENT_USER_ID, profile.id);
+
+    if (matchError) {
+      console.error("Error checking match:", matchError);
+      return;
+    }
+
+    if (matchData) {
+      console.log("It's a match!");
+
+      setMatchModal({
+        visible: true,
+        name: profile.name,
+        instagram: profile.instagram,
+      });
+    }
+
     setLikesRemaining((n) => Math.max(0, n - 1));
+
+  } catch (err) {
+    console.error("Unexpected error:", err);
+    return;
+  }
+
     setMatchModal({ visible: true, name: profile.name, instagram: profile.instagram });
     setMatches((prev) => {
       const next: StoredMatch[] = [
